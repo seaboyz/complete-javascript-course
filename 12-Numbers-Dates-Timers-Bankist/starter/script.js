@@ -196,6 +196,7 @@ const upDateUI = function (account)
 	displaySumIn(account);
 	displaySumOut(account);
 	displaySumInterest(account);
+	clearInputs();
 };
 
 const displayBalance = function (account)
@@ -225,30 +226,34 @@ const displaySumOut = function (account)
 	}).format(sumOut);
 };
 
-const displayMovements = function (account)
+const displayMovements = function (account, sorted = false)
 {
 	containerMovements.innerHTML = '';
 
-	account.movements.forEach(function (movement, index)
+	const createMovementEl = function (movement, index)
 	{
 		var type = movement > 0 ? 'deposit' : 'withdrawal';
 
 		var html = `
-      <div class="movements__row">
-        <div class="movements__type movements__type--${ type }">
-          ${ index + 1 } ${ type }
-        </div>
-        <div class="movements__value">
-        ${ Intl.NumberFormat(account.locale, {
+	  <div class="movements__row">
+		<div class="movements__type movements__type--${ type }">
+		  ${ index + 1 } ${ type }
+		</div>
+		<div class="movements__value">
+		${ Intl.NumberFormat(account.locale, {
 			style: 'currency',
 			currency: account.currency,
 		}).format(movement) }
-        </div>
-      </div>
-    `;
+		</div>
+	  </div>
+	`;
 
 		containerMovements.insertAdjacentHTML('afterbegin', html);
-	});
+	};
+
+	sorted
+		? [...(account.movements)].sort((a, b) => (a - b)).forEach(createMovementEl)
+		: account.movements.forEach(createMovementEl);
 };
 
 const displaySumInterest = function (account)
@@ -258,6 +263,17 @@ const displaySumInterest = function (account)
 		style: 'currency',
 		currency: account.currency,
 	}).format(sumInterest);
+};
+
+const clearInputs = function ()
+{
+	inputLoginUsername.value = "";
+	inputLoginPin.value = "";
+	inputTransferTo.value = "";
+	inputTransferAmount.value = "";
+	inputLoanAmount.value = "";
+	inputCloseUsername.value = "";
+	inputClosePin.value = "";
 };
 
 // event handler
@@ -331,20 +347,28 @@ const getLoan = function (e)
 
 	const amount = Number(inputLoanAmount.value);
 
-	if (amount > 0 && currentAccount.movements.some(movement => movement >= amount))
+	if (amount > 0 && currentAccount.movements.some(movement => movement >= amount * 0.1))
 	{
 		currentAccount.movements.push(amount);
 		upDateUI(currentAccount);
 	}
-
-
 };
+const sortMovements = (function ()
+{
+	var sorted = true;
+	return function ()
+	{
+		displayMovements(currentAccount, sorted);
+		sorted = !sorted;
+	};
+})();
+
 // implament
 
 btnLogin.addEventListener('click', login);
 btnTransfer.addEventListener('click', transfer);
 btnClose.addEventListener('click', closeAccount);
 btnLoan.addEventListener("click", getLoan);
-
+btnSort.addEventListener("click", sortMovements);
 
 
