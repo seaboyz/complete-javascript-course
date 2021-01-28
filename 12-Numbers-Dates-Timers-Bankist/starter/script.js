@@ -196,7 +196,16 @@ const upDateUI = function (account)
 	displaySumIn(account);
 	displaySumOut(account);
 	displaySumInterest(account);
+	displayDate(account);
 	clearInputs();
+};
+
+const displayDate = function (account)
+{
+	var date =
+		new Date()
+			.toLocaleDateString(account.local);
+	labelDate.textContent = date;
 };
 
 const displayBalance = function (account)
@@ -228,32 +237,66 @@ const displaySumOut = function (account)
 
 const displayMovements = function (account, sorted = false)
 {
-	containerMovements.innerHTML = '';
+	containerMovements.innerHTML = "";
 
-	const createMovementEl = function (movement, index)
+	var movmentsAndDatesArr =
+		account
+			.movements
+			.map((movement, index) => [
+				movement, account.movementsDates[index]
+			]);
+
+	movmentsAndDatesArr =
+		sorted
+			? movmentsAndDatesArr
+				.sort(([movement,], [nextMovement,]) =>
+				{ return movement - nextMovement; })
+			: movmentsAndDatesArr;
+
+	movmentsAndDatesArr
+		.forEach(createMovementEl);
+
+	function createMovementEl ([movement, movementDate], index)
 	{
-		var type = movement > 0 ? 'deposit' : 'withdrawal';
+		var type =
+			movement > 0 ? 'deposit' : 'withdrawal';
 
-		var html = `
-	  <div class="movements__row">
-		<div class="movements__type movements__type--${ type }">
-		  ${ index + 1 } ${ type }
-		</div>
-		<div class="movements__value">
-		${ Intl.NumberFormat(account.locale, {
-			style: 'currency',
-			currency: account.currency,
-		}).format(movement) }
-		</div>
-	  </div>
-	`;
+		// var date =
+		// 	new Date(movementDate)
+		// 		.toLocaleDateString(account.local);
+		var date =
+			Intl.DateTimeFormat(account1.locale).format(new Date(movementDate));
+
+		var movementValue =
+			Intl
+				.NumberFormat(account.locale,
+					{
+						style: 'currency',
+						currency: account.currency,
+					})
+				.format(movement);
+
+		var html =
+			`
+			<div class="movements__row">
+			  
+				<div class="movements__type movements__type--${ type }">
+		  			${ index + 1 } ${ type }
+				</div>
+
+				<div class="movements__date">
+					${ date }
+				</div>
+
+				<div class="movements__value">
+					${ movementValue }
+				</div>
+
+	 		</div>
+			`;
 
 		containerMovements.insertAdjacentHTML('afterbegin', html);
 	};
-
-	sorted
-		? [...(account.movements)].sort((a, b) => (a - b)).forEach(createMovementEl)
-		: account.movements.forEach(createMovementEl);
 };
 
 const displaySumInterest = function (account)
@@ -306,14 +349,20 @@ const transfer = function (e)
 	);
 
 	if (
-		recipientAccount !== undefined &&
-		amount > 0 &&
-		calcBalance(currentAccount) >= amount &&
+		recipientAccount !== undefined
+		&&
+		amount > 0
+		&&
+		calcBalance(currentAccount) >= amount
+		&&
 		getInitials(currentAccount) !== getInitials(recipientAccount)
 	)
 	{
+		let currentTime = (new Date()).toISOString();
 		currentAccount.movements.push(-amount);
+		currentAccount.movementsDates.push(currentTime);
 		recipientAccount.movements.push(amount);
+		recipientAccount.movementsDates.push(currentTime);
 
 		upDateUI(currentAccount);
 	}
@@ -345,11 +394,13 @@ const getLoan = function (e)
 {
 	e.preventDefault();
 
-	const amount = Number(inputLoanAmount.value);
+	const amount = Math.floor(inputLoanAmount.value);
 
 	if (amount > 0 && currentAccount.movements.some(movement => movement >= amount * 0.1))
 	{
+		let currentTime = (new Date()).toISOString();
 		currentAccount.movements.push(amount);
+		currentAccount.movementsDates.push(currentTime);
 		upDateUI(currentAccount);
 	}
 };
@@ -370,5 +421,6 @@ btnTransfer.addEventListener('click', transfer);
 btnClose.addEventListener('click', closeAccount);
 btnLoan.addEventListener("click", getLoan);
 btnSort.addEventListener("click", sortMovements);
+
 
 
