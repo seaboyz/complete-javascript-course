@@ -200,6 +200,39 @@ const upDateUI = function (account)
 	clearInputs();
 };
 
+const resetLogOutTimer = function ()
+{
+	var timer = undefined;
+
+	return function ()
+	{
+		if (timer)
+		{
+			clearInterval(timer);
+		}
+		var logInTime = new Date();
+		timer = setInterval(function ()
+		{
+			var currentTime = new Date();
+			var time = 300 - (currentTime.getSeconds() - logInTime.getSeconds());
+
+			if (time >= 0)
+			{
+				labelTimer.textContent = Math.floor(time / 60) + ":" + time % 60;
+			} else
+			{
+				logOut();
+				clearInterval(timer);
+			}
+		}, 1000);
+	};
+}();
+
+
+
+
+
+
 const displayDate = function (account)
 {
 	var date =
@@ -211,7 +244,7 @@ const displayDate = function (account)
 const displayBalance = function (account)
 {
 	var balance = calcBalance(account);
-	labelBalance.textContent = Intl.NumberFormat(account.locale, {
+	labelBalance.textContent = new Intl.NumberFormat(account.locale, {
 		style: 'currency',
 		currency: account.currency,
 	}).format(balance);
@@ -220,7 +253,7 @@ const displayBalance = function (account)
 const displaySumIn = function (account)
 {
 	var sumIn = calcSumIn(account);
-	labelSumIn.textContent = Intl.NumberFormat(account.locale, {
+	labelSumIn.textContent = new Intl.NumberFormat(account.locale, {
 		style: 'currency',
 		currency: account.currency,
 	}).format(sumIn);
@@ -229,7 +262,7 @@ const displaySumIn = function (account)
 const displaySumOut = function (account)
 {
 	var sumOut = calcSumOut(account);
-	labelSumOut.textContent = Intl.NumberFormat(account.locale, {
+	labelSumOut.textContent = new Intl.NumberFormat(account.locale, {
 		style: 'currency',
 		currency: account.currency,
 	}).format(sumOut);
@@ -265,10 +298,10 @@ const displayMovements = function (account, sorted = false)
 		// 	new Date(movementDate)
 		// 		.toLocaleDateString(account.local);
 		var date =
-			Intl.DateTimeFormat(account1.locale).format(new Date(movementDate));
+			new Intl.DateTimeFormat(account1.locale).format(new Date(movementDate));
 
 		var movementValue =
-			Intl
+			new Intl
 				.NumberFormat(account.locale,
 					{
 						style: 'currency',
@@ -302,7 +335,7 @@ const displayMovements = function (account, sorted = false)
 const displaySumInterest = function (account)
 {
 	var sumInterest = calcSumInsterst(account);
-	labelSumInterest.textContent = Intl.NumberFormat(account.locale, {
+	labelSumInterest.textContent = new Intl.NumberFormat(account.locale, {
 		style: 'currency',
 		currency: account.currency,
 	}).format(sumInterest);
@@ -326,6 +359,7 @@ const login = function (e)
 {
 	e.preventDefault();
 
+
 	currentAccount = accounts.find(
 		account => getInitials(account) === inputLoginUsername.value
 	);
@@ -334,8 +368,19 @@ const login = function (e)
 	{
 		containerApp.style.opacity = '100';
 
+		labelWelcome.textContent =
+			`Welcome ${ currentAccount.owner.split(" ")[0] }.`;
+
+		resetLogOutTimer();
+
 		upDateUI(currentAccount);
 	}
+};
+
+function logOut ()
+{
+	containerApp.innerHTML = "";
+	labelWelcome.textContent = "You've logged out.";
 };
 
 const transfer = function (e)
@@ -363,7 +408,7 @@ const transfer = function (e)
 		currentAccount.movementsDates.push(currentTime);
 		recipientAccount.movements.push(amount);
 		recipientAccount.movementsDates.push(currentTime);
-
+		resetLogOutTimer();
 		upDateUI(currentAccount);
 	}
 };
@@ -401,6 +446,7 @@ const getLoan = function (e)
 		let currentTime = (new Date()).toISOString();
 		currentAccount.movements.push(amount);
 		currentAccount.movementsDates.push(currentTime);
+		resetLogOutTimer();
 		upDateUI(currentAccount);
 	}
 };
@@ -421,6 +467,3 @@ btnTransfer.addEventListener('click', transfer);
 btnClose.addEventListener('click', closeAccount);
 btnLoan.addEventListener("click", getLoan);
 btnSort.addEventListener("click", sortMovements);
-
-
-
