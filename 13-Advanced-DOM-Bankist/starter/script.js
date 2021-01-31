@@ -80,6 +80,25 @@ function changeSiblingsOpacityTo100(e)
 	changeNavOpacity(e, 1);
 };
 
+let currentSlide = 0;
+const FIRSTSLIDE = 0;
+const LASTSLIDE = allSides.length - 1;
+
+function nextSlide()
+{
+	if (currentSlide === LASTSLIDE) return;
+	currentSlide++;
+	allSides.forEach((slide, idx) => slide.style.transform = `translateX(${ (idx - currentSlide) * 100 }%)`);
+}
+function prevSlide()
+{
+	if (currentSlide === FIRSTSLIDE) return;
+	currentSlide--;
+	allSides.forEach((slide, idx) => slide.style.transform = `translateX(${ (idx - currentSlide) * 100 }%)`);
+}
+
+
+
 /* Observers */
 
 const navbarHeight =
@@ -237,61 +256,17 @@ document.querySelectorAll(".features__img")
 	.forEach(img => lazyImgObserver.observe(img));
 
 // slider
-// slider.style.overflow = "visible";
 
-var currentSlideIndex = 0;
-btnSliderLeft.disabled = true;
-// firstSlideObserver.observe(firstSlide);
-// lastSlideObserver.observe(LastSlide);
 
 allSides
 	.forEach((slide, idx) =>
 		slide.style.transform = `translateX(${ idx * 100 }%)`);
 
 btnSliderLeft
-	.addEventListener("click", function ()
-	{
-
-		currentSlideIndex--;
-
-		if (currentSlideIndex === 0)
-		{
-			btnSliderLeft.disabled = true;
-			btnSliderRight.disabled = false;
-		} else
-		{
-			btnSliderLeft.disabled = false;
-			btnSliderRight.disabled = false;
-		}
-
-		allSides.forEach((slide, idx) =>
-		{
-			slide.style.transform = `translateX(${ (idx - currentSlideIndex) * 100 }%)`;
-		});
-		console.log(currentSlideIndex);
-	});
+	.addEventListener("click", prevSlide);
 
 btnSliderRight
-	.addEventListener("click", function ()
-	{
-		currentSlideIndex++;
-
-		if (currentSlideIndex === allSides.length - 1)
-		{
-			btnSliderRight.disabled = true;
-			btnSliderLeft.disabled = false;
-		} else
-		{
-			btnSliderLeft.disabled = false;
-			btnSliderRight.disabled = false;
-		}
-
-		allSides.forEach((slide, idx) =>
-		{
-			slide.style.transform = `translateX(${ (idx - currentSlideIndex) * 100 }%)`;
-		});
-		console.log(currentSlideIndex);
-	});
+	.addEventListener("click", nextSlide);
 // ********************************
 
 
