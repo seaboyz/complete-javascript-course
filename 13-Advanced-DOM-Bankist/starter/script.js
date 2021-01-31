@@ -29,6 +29,8 @@ const firstSlide =
 	allSides[0];
 const LastSlide =
 	allSides[allSides.length - 1];
+const dotsContainer
+	= document.querySelector(".dots");
 
 
 /* Event handlers */
@@ -88,17 +90,49 @@ function nextSlide()
 {
 	if (currentSlide === LASTSLIDE) return;
 	currentSlide++;
-	allSides.forEach((slide, idx) => slide.style.transform = `translateX(${ (idx - currentSlide) * 100 }%)`);
+	goToSlide(currentSlide);
 }
 function prevSlide()
 {
 	if (currentSlide === FIRSTSLIDE) return;
 	currentSlide--;
-	allSides.forEach((slide, idx) => slide.style.transform = `translateX(${ (idx - currentSlide) * 100 }%)`);
+	goToSlide(currentSlide);
+}
+function goToSlide(slideNumber)
+{
+	currentSlide = slideNumber;
+	activateDot(currentSlide);
+	allSides
+		.forEach((slide, idx) => slide.style.transform = `translateX(${ (idx - currentSlide) * 100 }%)`);
 }
 
+function activateDot(slide)
+{
+	// deactive all dots
+	dotsContainer.childNodes
+		.forEach(dot => dot.classList.remove("dots__dot--active"));
+	// active dot relative to the currentSlide
+	dotsContainer.childNodes[currentSlide].classList.add("dots__dot--active");
+}
 
+function createDots()
+{
+	allSides.forEach((__, idx) =>
+	{
+		let dot = document.createElement("button");
+		dot.classList.add("dots__dot");
+		dot.setAttribute("data-slide", idx);
+		dotsContainer.append(dot);
+		// show active dot on current slide
+		dot.addEventListener("click", function (e)
+		{
+			let clickedDot = e.target;
+			let slideNumber = Number(e.target.dataset.slide);
+			goToSlide(slideNumber);
 
+		});
+	});
+}
 /* Observers */
 
 const navbarHeight =
@@ -256,8 +290,6 @@ document.querySelectorAll(".features__img")
 	.forEach(img => lazyImgObserver.observe(img));
 
 // slider
-
-
 allSides
 	.forEach((slide, idx) =>
 		slide.style.transform = `translateX(${ idx * 100 }%)`);
@@ -267,10 +299,19 @@ btnSliderLeft
 
 btnSliderRight
 	.addEventListener("click", nextSlide);
-// ********************************
+
+document.addEventListener("keyup", function (e)
+{
+	if (e.key === "ArrowRight") nextSlide();
+	if (e.key === "ArrowLeft") prevSlide();
+});
+
+// dots
 
 
+createDots();
 
-
+activateDot(currentSlide);
+	// ********************************
 
 
