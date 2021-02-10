@@ -3,18 +3,19 @@
 const btn = document.querySelector('.btn-country');
 const countriesContainer = document.querySelector('.countries');
 
-const renderCountry = function (data, className = '') {
+const renderCountry = function (data, className = '')
+{
   const html = `
-  <article class="country ${className}">
-    <img class="country__img" src="${data.flag}" />
+  <article class="country ${ className }">
+    <img class="country__img" src="${ data.flag }" />
     <div class="country__data">
-      <h3 class="country__name">${data.name}</h3>
-      <h4 class="country__region">${data.region}</h4>
-      <p class="country__row"><span>👫</span>${(
-        +data.population / 1000000
-      ).toFixed(1)} people</p>
-      <p class="country__row"><span>🗣️</span>${data.languages[0].name}</p>
-      <p class="country__row"><span>💰</span>${data.currencies[0].name}</p>
+      <h3 class="country__name">${ data.name }</h3>
+      <h4 class="country__region">${ data.region }</h4>
+      <p class="country__row"><span>👫</span>${ (
+      +data.population / 1000000
+    ).toFixed(1) } people</p>
+      <p class="country__row"><span>🗣️</span>${ data.languages[0].name }</p>
+      <p class="country__row"><span>💰</span>${ data.currencies[0].name }</p>
     </div>
   </article>
   `;
@@ -22,43 +23,48 @@ const renderCountry = function (data, className = '') {
   countriesContainer.style.opacity = 1;
 };
 
-const renderError = function (msg) {
+const renderError = function (msg)
+{
   countriesContainer.insertAdjacentText('beforeend', msg);
   countriesContainer.style.opacity = 1;
 };
 
-const getJSON = function (url, errorMsg = 'Something went wrong') {
-  return fetch(url).then(response => {
-    if (!response.ok) throw new Error(`${errorMsg} (${response.status})`);
+const getJSON = function (url, errorMsg = 'Something went wrong')
+{
+  return fetch(url).then(response =>
+  {
+    if (!response.ok) throw new Error(`${ errorMsg } (${ response.status })`);
 
     return response.json();
   });
 };
 
-/*
+
 ///////////////////////////////////////
 // Our First AJAX Call: XMLHttpRequest
 
-const getCountryData = function (country) {
+const getCountryData = function (country)
+{
   const request = new XMLHttpRequest();
-  request.open('GET', `https://restcountries.eu/rest/v2/name/${country}`);
+  request.open('GET', `https://restcountries.eu/rest/v2/name/${ country }`);
   request.send();
 
-  request.addEventListener('load', function () {
+  request.addEventListener('load', function ()
+  {
     const [data] = JSON.parse(this.responseText);
     console.log(data);
 
     const html = `
   <article class="country">
-    <img class="country__img" src="${data.flag}" />
+    <img class="country__img" src="${ data.flag }" />
     <div class="country__data">
-      <h3 class="country__name">${data.name}</h3>
-      <h4 class="country__region">${data.region}</h4>
-      <p class="country__row"><span>👫</span>${(
+      <h3 class="country__name">${ data.name }</h3>
+      <h4 class="country__region">${ data.region }</h4>
+      <p class="country__row"><span>👫</span>${ (
         +data.population / 1000000
-      ).toFixed(1)} people</p>
-      <p class="country__row"><span>🗣️</span>${data.languages[0].name}</p>
-      <p class="country__row"><span>💰</span>${data.currencies[0].name}</p>
+      ).toFixed(1) } people</p>
+      <p class="country__row"><span>🗣️</span>${ data.languages[0].name }</p>
+      <p class="country__row"><span>💰</span>${ data.currencies[0].name }</p>
     </div>
   </article>
   `;
@@ -70,7 +76,7 @@ const getCountryData = function (country) {
 getCountryData('portugal');
 getCountryData('usa');
 getCountryData('germany');
-*/
+
 
 ///////////////////////////////////////
 // Welcome to Callback Hell
@@ -219,7 +225,7 @@ btn.addEventListener('click', function () {
 ///////////////////////////////////////
 // Coding Challenge #1
 
-/* 
+/*
 In this challenge you will build a function 'whereAmI' which renders a country ONLY based on GPS coordinates. For that, you will use a second API to geocode coordinates.
 
 Here are your tasks:
@@ -382,7 +388,7 @@ btn.addEventListener('click', whereAmI);
 ///////////////////////////////////////
 // Coding Challenge #2
 
-/* 
+/*
 Build the image loading functionality that I just showed you on the screen.
 
 Tasks are not super-descriptive this time, so that you can figure out some stuff on your own. Pretend you're working on your own 😉
@@ -645,7 +651,7 @@ Promise.any([
 ///////////////////////////////////////
 // Coding Challenge #3
 
-/* 
+/*
 PART 1
 Write an async function 'loadNPause' that recreates Coding Challenge #2, this time using async/await (only the part where the promise is consumed). Compare the two versions, think about the big differences, and see which one you like more.
 Don't forget to test the error handler, and to set the network speed to 'Fast 3G' in the dev tools Network tab.

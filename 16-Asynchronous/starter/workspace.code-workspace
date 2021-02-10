@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "../final"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "starter"
+	}
+}
