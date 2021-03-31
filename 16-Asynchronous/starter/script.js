@@ -1,92 +1,98 @@
-'use strict';
+
 
 const btn = document.querySelector('.btn-country');
 const countriesContainer = document.querySelector('.countries');
 
 ///////////////////////////////////////
 
-// btn.addEventListener("click", function ()
-// {});
+const getCountryDataByName = name =>
+  fetch(`https://restcountries.eu/rest/v2/name/${name}`)
+    .then(data => data.json());
 
-function getCountryDataByCountryName(countryName) {
-  return fetch(`https://restcountries.eu/rest/v2/name/${countryName}`);
-}
+const getCountryDataByCode = code =>
+  fetch(`https://restcountries.eu/rest/v2/alpha/${code}`)
+    .then(data => data.json());
 
-function getCountryDataByCountryCode(countryCode) {
-  return fetch(`https://restcountries.eu/rest/v2/alpha/${countryCode}`);
-}
+const buildCountryEl = (countryData, className = '') =>
+  `
+   <article class="country ${className}">
+      <img class="country__img" src="${countryData.flag}" />
+      <div class="country__data">
+        <h3 class="country__name">${countryData.name}</h3>
+        <h4 class="country__region">${countryData.region}</h4>
+        <p class="country__row">
+          <span>👫</span>${R.compose(R.divide(R.__, 1000000), R.prop('population'))(countryData)} million
+        </p>
+        <p class="country__row"><span>🗣️</span>${countryData.languages[0].name}</p>
+        <p class="country__row"><span>💰</span>${countryData.currencies[0].name}</</p>
+      </div>
+     </article> 
+  `;
 
-function getNeibourCountryName(countryName) {
+const renderCountry = data => {
+  R.compose(
+    el => {
+      countriesContainer.insertAdjacentHTML('beforeend', el);
+      document.querySelector('.countries').style.opacity = 1;
+    },
+    buildCountryEl
+  )(data);
+  return data;
+};
 
-}
+const renderNeighbourCountry = data => {
+  R.compose
+    (
+      el => countriesContainer.insertAdjacentHTML('beforeend', el),
+      data => buildCountryEl(data, 'neighbour')
+    )(data);
 
+  return data;
+};
 
+const getNeighbourCountryCode = R.compose(R.head, R.prop('boders'));
 
-// fetch("https://restcountries.eu/rest/v2/name/portugal")
-// 	.then(response =>
-// 	{
-// 		if (!response.ok)
-// 			throw new Error(`Country not found ${ response.status }`);
-// 		return response.json();
-// 	})
-// 	.then(([data]) =>
-// 	{
-// 		renderCountry(data);
-// 		return data.borders[0];
-// 	})
-// 	.then((neighborCountryCode) =>
-// 		fetch(`https://restcountries.eu/rest/v2/alpha/${ neighborCountryCode }`))
-// 	.then(response =>
-// 	{
-// 		if (!response.ok)
-// 			throw new Error(`Country not found ${ response.status }`);
-// 		return response.json();
-// 	})
-// 	.then(data => renderCountry(data, "neighbor"))
-// 	.catch(err => console.log(err))
-// 	.finally(countriesContainer.style.opacity = 100);
-
-whereAmI(52.508, 13.381);
-
-function whereAmI(lat, lng) {
-  fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`)
-    .then(response => {
-      if (!response.ok) return;
-      return response.json();
-    })
-    .then(({ country }) => fetch(`https://restcountries.eu/rest/v2/name/${country}`))
-    .then(response => {
-      if (!response.ok) return;
-      return response.json();
-    })
-    .then(([data]) => renderCountry({ countryData: data, /* className: "neighbor"  */ }))
-    .catch(err => console.log(err))
-    .finally(countriesContainer.style.opacity = 100);
-}
-
-
-function renderCountry({ countryData, className } = {}) {
-  const html = `
-        <article class="country ${className}">
-          <img class="country__img" src="${countryData.flag}" />
-          <div class="country__countryData">
-            <h3 class="country__name">${countryData.name}</h3>
-            <h4 class="country__region">${countryData.region}</h4>
-            <p class="country__row">
-              <span>👫</span>${(countryData.population / 1000000).toFixed(1)}M
-            </p>
-            <p class="country__row">
-                <span>🗣️</span>${countryData.languages[0].name}
-            </p>
-            <p class="country__row">
-                <span>💰</span>${countryData.currencies[0].name}
-            </p>
-          </div>
-        </article>
-    `;
-
-  document.querySelector(".countries").insertAdjacentHTML("beforeend", html);
-
+const renderError = msg => {
+  countriesContainer.insertAdjacentText('beforeend', msg);
+  countriesContainer.style.opacity = 1;
 };
 
 
+getCountryDataByName('china')
+  .then(R.head)
+  .then(renderCountry)
+  .then(getNeighbourCountryCode)
+  .then(getCountryDataByCode)
+  .then(renderNeighbourCountry)
+  .catch(err => {
+    console.error(err);
+    renderError(`Something went wrong ${err.message}`);
+  });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function logIt(x) {
+  console.log(x);
+  return x;
+};;
