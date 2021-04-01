@@ -1,17 +1,29 @@
 
 
+
+
 const btn = document.querySelector('.btn-country');
 const countriesContainer = document.querySelector('.countries');
 
 ///////////////////////////////////////
 
+// const getJson = response => {
+//   if (response.ok) return response.json();
+//   throw new Error(`Country not Found, status ${response.status}`);
+// };
+const getJson = R.ifElse(
+  R.prop('ok'),
+  response => response.json(),
+  response => { throw new Error(`Country not Found, status ${response.status}`); });
+
+
 const getCountryDataByName = name =>
   fetch(`https://restcountries.eu/rest/v2/name/${name}`)
-    .then(data => data.json());
+    .then(getJson);
 
 const getCountryDataByCode = code =>
   fetch(`https://restcountries.eu/rest/v2/alpha/${code}`)
-    .then(data => data.json());
+    .then(getJson);
 
 const buildCountryEl = (countryData, className = '') =>
   `
@@ -50,7 +62,17 @@ const renderNeighbourCountry = data => {
   return data;
 };
 
-const getNeighbourCountryCode = R.compose(R.head, R.prop('boders'));
+// const getNeighbourCountryCode = R.compose(R.head, R.prop('borders'));
+// const getNeighbourCountryCode = data => {
+//   if (data.borders) return data.borders[0];
+//   throw new Error('No Neighbours');
+// };
+const getNeighbourCountryCode = R.ifElse(
+  R.compose(R.isNil, R.head, R.prop('borders')),
+  () => { throw new Error('No Neighbours'); },
+  R.compose(R.head, R.prop('borders'))
+);
+
 
 const renderError = msg => {
   countriesContainer.insertAdjacentText('beforeend', msg);
@@ -61,6 +83,7 @@ const renderError = msg => {
 getCountryDataByName('china')
   .then(R.head)
   .then(renderCountry)
+  .then(logIt)
   .then(getNeighbourCountryCode)
   .then(getCountryDataByCode)
   .then(renderNeighbourCountry)
